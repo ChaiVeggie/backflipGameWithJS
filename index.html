@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backflip</title>
+
+    <style>
+        #sprite-image {
+            height: 500px;
+            width: 500px;
+            background: url("assets/backflip_noTuck.png") 0px 0px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="sprite-container">
+        <div id="sprite-image"></div>
+    </div>
+    
+    <div>
+        <!-- <button onclick="getValue()">GetValue</button> -->
+        
+        <button id="jumpBtn" onclick="jump()">Jump</button>
+        <button id="tuckBtn" onclick="tuck()">Tuck</button>
+        <button id="tryAgainBtn" onclick="resetGame()">Try Again</button>
+    </div>
+    <p id="desc"></p>
+
+    <script type="text/javascript">
+        const speed = 40; //animation speed, in millisecond(ms)
+        var animationInterval;
+        var spriteSheet = document.getElementById("sprite-image");
+        var widthOfEachSprite = 500;
+        
+        //Hide buttons
+        document.getElementById('tuckBtn').style.display = 'none';
+        document.getElementById('tryAgainBtn').style.display = 'none';
+
+        function jump() {
+            startAnimation(14000);
+
+            //Change button to tuck
+            document.getElementById('tuckBtn').style.display = 'block';
+            document.getElementById('jumpBtn').style.display = 'none';
+        }
+
+        function resetGame() {
+            clearInterval(animationInterval);
+
+            //reset sprite
+            spriteSheet.style.backgroundImage = "url(assets/backflip_noTuck.png)";
+            spriteSheet.style.backgroundPosition = `-500px 0px`;
+            widthOfSpriteSheet = 14000;
+
+            //Reset buttons
+            document.getElementById('jumpBtn').style.display = 'block';
+            document.getElementById('tuckBtn').style.display = 'none';
+            document.getElementById('tryAgainBtn').style.display = 'none';
+            document.getElementById("desc").innerHTML = "";
+        }
+
+        function startAnimation(widthOfSpriteSheet) {
+            var position = widthOfEachSprite; //start position for the image
+            
+            const diff = widthOfEachSprite; //difference between two sprites
+
+            animationInterval = setInterval(() => {
+                
+                //console.log("widthOfSpriteSheet: " + widthOfSpriteSheet)
+                if (position < widthOfSpriteSheet) {
+                    spriteSheet.style.backgroundPosition = `-${position}px 0px`;
+                    position = position + diff;
+                }
+                else{
+                    //try again button
+                    document.getElementById('tuckBtn').style.display = 'none';
+                    document.getElementById('tryAgainBtn').style.display = 'block';
+                }
+            }, speed);
+        }
+
+        function getValue() {
+            console.log("sprite " + Math.abs(parseInt(spriteSheet.style.backgroundPosition, 10))/widthOfEachSprite );
+        }
+
+        function tuck(){
+            //Math.abs change the negative to positive integers. Gets the "frame number"
+            var currentSprite = Math.abs(parseInt(spriteSheet.style.backgroundPosition, 10))/widthOfEachSprite;
+
+            document.getElementById('tuckBtn').style.display = 'none';
+            document.getElementById('tryAgainBtn').style.display = 'block';
+            
+            //Jump too early
+            if (currentSprite <= 14) {
+                console.log("Tuck early");
+
+                clearInterval(animationInterval);
+
+                //Swap Sprite sheet
+                spriteSheet.style.backgroundImage = "url(assets/backflip_early.png)";
+
+                //Reset spritesheet position
+                spriteSheet.style.backgroundPosition = "-500px 0px";
+
+                //widthOfSpriteSheet = 4500, 9 frames, 9 * 500 = 4500
+                startAnimation(4500);
+
+                document.getElementById("desc").innerHTML = "You tucked too early";
+            }
+
+            //Tuck too late
+            else if (currentSprite >= 18) {
+                console.log("Tuck late");
+
+                clearInterval(animationInterval);
+                spriteSheet.style.backgroundImage = "url(assets/backflip_late.png)";
+                spriteSheet.style.backgroundPosition = "-500px 0px";
+                startAnimation(4500);
+
+                document.getElementById("desc").innerHTML = "You tucked too late";
+            }
+
+            //perfect backflip, frame number 15,16 17?
+            else {
+                console.log("BACKFLIP SUCCESS");
+
+                clearInterval(animationInterval);
+                spriteSheet.style.backgroundImage = "url(assets/backflip_perfect.png)";
+                spriteSheet.style.backgroundPosition = "-500px 0px";
+                startAnimation(5500);
+                document.getElementById("desc").innerHTML = "Congrats!";
+            }
+        }
+    </script>
+</body>
+
+</html>
